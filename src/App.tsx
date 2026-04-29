@@ -159,8 +159,10 @@ function EmployeeRoute({ children }: { children: React.ReactNode }) {
 }
 
 function App() {
+  const basename = import.meta.env.PROD ? '/xor-ats-app' : '/';
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
         <Route path="/" element={<LoginPage />} />
         <Route
