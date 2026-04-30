@@ -1,16 +1,7 @@
 name: Deploy to GitHub Pages
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - 'src/**'
-      - 'public/**'
-      - 'index.html'
-      - 'package.json'
-      - 'vite.config.ts'
-      - '.github/workflows/deploy.yml'
+  # MANUAL TRIGGER ONLY - NO AUTO-DEPLOYMENT
   workflow_dispatch:
 
 permissions:
