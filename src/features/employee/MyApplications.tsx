@@ -7,15 +7,27 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/core/card
 import { Button } from '@/components/core/button';
 import { Briefcase, Calendar } from 'lucide-react';
 import { format } from 'date-fns';
+import { ExportButton } from '@/components/ExportButton';
 
 export function MyApplications() {
-  const { auth, applications, jobRequirements, interviewStages } = useStore();
+  const { auth, applications, jobRequirements, interviewStages, users, resources } = useStore();
   const [selectedFilter, setSelectedFilter] = useState<string>('ALL');
+  const [selectedUserId, setSelectedUserId] = useState<string>('');
 
   if (!auth.user) return null;
 
-  // Get my applications
-  const myApplications = applications.filter(app => app.employeeId === auth.user!.id);
+  const isAdmin = ['ADMIN', 'HR', 'TMG', 'MANAGER'].includes(auth.user.role);
+
+  // Get applications based on role
+  const myApplications = useMemo(() => {
+    if (isAdmin && selectedUserId) {
+      return applications.filter(app => app.employeeId === selectedUserId);
+    }
+    if (isAdmin && !selectedUserId) {
+      return applications; // Show all for admin
+    }
+    return applications.filter(app => app.employeeId === auth.user!.id);
+  }, [applications, auth.user, isAdmin, selectedUserId]);
 
   const filteredApplications = useMemo(() => {
     if (selectedFilter === 'ALL') return myApplications;
@@ -63,16 +75,93 @@ export function MyApplications() {
     ).length,
   };
 
+  // Get all employees for admin dropdown
+  const allEmployees = useMemo(() => {
+    const userEmployees = users.map(u => ({ id: u.id, name: u.name, type: 'USER' as const }));
+    const resourceEmployees = resources.map(r => ({ id: r.id, name: r.name, type: 'RESOURCE' as const }));
+    return [...userEmployees, ...resourceEmployees].sort((a, b) => a.name.localeCompare(b.name));
+  }, [users, resources]);
+
   return (
     <DashboardLayout>
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold">My Applications</h1>
-          <p className="text-muted-foreground mt-1">
-            Track your application progress and interview stages
-          </p>
+        <div className="flex items-start justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">
+              {isAdmin ? 'Application Tracking' : 'My Applications'}
+            </h1>
+            <p className="text-muted-foreground mt-1">
+              {isAdmin
+                ? 'Track all employee/resource applications and their progress'
+                : 'Track your application progress and interview stages'
+              }
+            </p>
+          </div>
+          {filteredApplications.length > 0 && (
+            <ExportButton
+              data={filteredApplications.map(app => {
+                const req = getRequirement(app.requirementId);
+                const employee = users.find(u => u.id === app.employeeId) ||
+                                resources.find(r => r.id === app.employeeId);
+                return {
+                  employeeName: employee?.name || 'Unknown',
+                  requirement: req?.title || 'Unknown',
+                  location: req?.location || '-',
+                  currentStage: app.currentStage,
+                  status: app.status,
+                  source: app.source,
+                  aiScore: app.aiScore ? app.aiScore.toFixed(1) : '-',
+                  appliedOn: format(new Date(app.createdAt), 'MMM dd, yyyy'),
+                  lastUpdated: format(new Date(app.updatedAt), 'MMM dd, yyyy'),
+                };
+              })}
+              columns={[
+                ...(isAdmin ? [{ header: 'Employee', dataKey: 'employeeName', width: 40 }] : []),
+                { header: 'Requirement', dataKey: 'requirement', width: 50 },
+                { header: 'Location', dataKey: 'location', width: 30 },
+                { header: 'Stage', dataKey: 'currentStage', width: 30 },
+                { header: 'Status', dataKey: 'status', width: 28 },
+                { header: 'Source', dataKey: 'source', width: 25 },
+                { header: 'AI Score', dataKey: 'aiScore', width: 22 },
+                { header: 'Applied', dataKey: 'appliedOn', width: 28 },
+                { header: 'Updated', dataKey: 'lastUpdated', width: 28 },
+              ]}
+              filename={isAdmin ? 'application-tracking' : 'my-applications'}
+              title={isAdmin ? 'Application Tracking Report' : 'My Applications'}
+              subtitle={`Total: ${filteredApplications.length} | Active: ${stats.active} | Selected: ${stats.selected}`}
+              orientation="landscape"
+            />
+          )}
         </div>
+
+        {/* Admin: Employee Selector */}
+        {isAdmin && (
+          <div className="flex items-center gap-4">
+            <label className="text-sm font-medium">Filter by Employee:</label>
+            <select
+              value={selectedUserId}
+              onChange={(e) => setSelectedUserId(e.target.value)}
+              className="w-64 px-3 py-2 border rounded-md bg-background"
+            >
+              <option value="">All Employees</option>
+              {allEmployees.map(emp => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.name} ({emp.type})
+                </option>
+              ))}
+            </select>
+            {selectedUserId && (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setSelectedUserId('')}
+              >
+                Clear Filter
+              </Button>
+            )}
+          </div>
+        )}
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4">

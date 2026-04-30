@@ -6,6 +6,7 @@ import { Badge } from '@/components/core/badge';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/core/card';
 import { SearchableRequirementSelect } from '@/components/core/searchable-requirement-select';
 import { rankCandidates } from '@/utils/aiRanking';
+import { ExportButton } from '@/components/ExportButton';
 import type { BenchResource, JobRequirement } from '@/types';
 
 export function AIRankingPage() {
@@ -100,8 +101,39 @@ export function AIRankingPage() {
                   Showing bench resources ordered by AI score (skills + experience match)
                 </p>
               </div>
-              <div className="text-sm text-muted-foreground">
-                {ranked.length} candidate{ranked.length === 1 ? '' : 's'} considered
+              <div className="flex items-center gap-4">
+                <div className="text-sm text-muted-foreground">
+                  {ranked.length} candidate{ranked.length === 1 ? '' : 's'} considered
+                </div>
+                {ranked.length > 0 && (
+                  <ExportButton
+                    data={ranked.map(({ candidate, aiScore, skillMatchDetails }) => ({
+                      name: candidate.name,
+                      email: candidate.email,
+                      designation: candidate.designation,
+                      experience: candidate.experience,
+                      location: candidate.location,
+                      aiScore: aiScore.toFixed(1),
+                      skillMatch: skillMatchDetails.matched.join(', '),
+                      missingSkills: skillMatchDetails.missing.join(', '),
+                      status: candidate.status,
+                    }))}
+                    columns={[
+                      { header: 'Name', dataKey: 'name', width: 40 },
+                      { header: 'Email', dataKey: 'email', width: 45 },
+                      { header: 'Designation', dataKey: 'designation', width: 35 },
+                      { header: 'Exp', dataKey: 'experience', width: 18 },
+                      { header: 'Location', dataKey: 'location', width: 30 },
+                      { header: 'AI Score', dataKey: 'aiScore', width: 22 },
+                      { header: 'Matched Skills', dataKey: 'skillMatch', width: 45 },
+                      { header: 'Missing Skills', dataKey: 'missingSkills', width: 35 },
+                    ]}
+                    filename={`ai-ranking-${selectedRequirement.title.replace(/\s+/g, '-').toLowerCase()}`}
+                    title={`AI Ranking: ${selectedRequirement.title}`}
+                    subtitle={`Total Candidates: ${ranked.length} | Requirement: ${selectedRequirement.location} | Exp: ${selectedRequirement.experience.min}-${selectedRequirement.experience.max} yrs`}
+                    orientation="landscape"
+                  />
+                )}
               </div>
             </div>
 
