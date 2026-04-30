@@ -9,7 +9,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/core/dialog';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/core/tabs';
+import { Button } from '@/components/core/button';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/core/card';
+import { ApplicationStageTracker } from '@/components/ApplicationStageTracker';
+import { Briefcase, Calendar } from 'lucide-react';
 
 interface ApplicationHistoryProps {
   employeeId: string;
@@ -19,192 +22,187 @@ interface ApplicationHistoryProps {
 }
 
 export function ApplicationHistory({ employeeId, employeeName, isOpen, onClose }: ApplicationHistoryProps) {
-  const { applications, jobRequirements } = useStore();
-  const [activeTab, setActiveTab] = useState('all');
+  const { applications, jobRequirements, interviewStages } = useStore();
+  const [selectedFilter, setSelectedFilter] = useState<string>('ALL');
 
-  const employeeApplications = useMemo(() => {
+  const myApplications = useMemo(() => {
     return applications
       .filter(app => app.employeeId === employeeId)
       .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
   }, [applications, employeeId]);
 
-  const activeApplications = useMemo(() => {
-    return employeeApplications.filter(app =>
-      !['REJECTED', 'WITHDRAWN', 'COMPLETED'].includes(app.status)
-    );
-  }, [employeeApplications]);
+  const filteredApplications = useMemo(() => {
+    if (selectedFilter === 'ALL') return myApplications;
+    if (selectedFilter === 'ACTIVE') {
+      return myApplications.filter(app =>
+        app.status !== 'REJECTED' &&
+        app.status !== 'WITHDRAWN' &&
+        app.status !== 'COMPLETED'
+      );
+    }
+    if (selectedFilter === 'CLOSED') {
+      return myApplications.filter(app =>
+        app.status === 'REJECTED' ||
+        app.status === 'WITHDRAWN' ||
+        app.status === 'COMPLETED'
+      );
+    }
+    return myApplications;
+  }, [myApplications, selectedFilter]);
 
-  const completedApplications = useMemo(() => {
-    return employeeApplications.filter(app =>
-      app.status === 'SELECTED' || app.status === 'COMPLETED'
-    );
-  }, [employeeApplications]);
-
-  const rejectedApplications = useMemo(() => {
-    return employeeApplications.filter(app =>
-      app.status === 'REJECTED' || app.status === 'WITHDRAWN'
-    );
-  }, [employeeApplications]);
-
-  const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
-    if (status === 'SELECTED' || status === 'COMPLETED') return 'default';
-    if (status === 'REJECTED' || status === 'WITHDRAWN') return 'destructive';
-    if (status === 'ON_HOLD') return 'secondary';
-    return 'outline';
+  const getRequirement = (reqId: string) => {
+    return jobRequirements.find(r => r.id === reqId);
   };
 
-  const renderApplicationCard = (app: typeof employeeApplications[0]) => {
-    const requirement = jobRequirements.find(r => r.id === app.requirementId);
+  const getMyInterviews = (appId: string) => {
+    return interviewStages
+      .filter(stage => stage.applicationId === appId)
+      .sort((a, b) => a.sequence - b.sequence);
+  };
 
-    return (
-      <div
-        key={app.id}
-        className="p-4 border rounded-lg bg-card hover:bg-muted/50 transition-colors"
-      >
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-          {/* Requirement Info */}
-          <div>
-            <div className="text-xs text-muted-foreground mb-1">Requirement</div>
-            <div className="font-medium text-sm">{requirement?.title || 'Unknown'}</div>
-            <div className="text-xs text-muted-foreground">{requirement?.location || '-'}</div>
-          </div>
-
-          {/* Status & Stage */}
-          <div>
-            <div className="text-xs text-muted-foreground mb-1">Status & Stage</div>
-            <div className="flex flex-col gap-1">
-              <Badge variant={getStatusVariant(app.status)} className="w-fit">
-                {app.status}
-              </Badge>
-              <span className="text-xs text-muted-foreground">
-                {app.currentStage.replace(/_/g, ' ')}
-              </span>
-            </div>
-          </div>
-
-          {/* Source & AI Score */}
-          <div>
-            <div className="text-xs text-muted-foreground mb-1">Source & Score</div>
-            <div className="flex flex-col gap-1">
-              <Badge variant="outline" className="w-fit">
-                {app.source === 'ASSIGNED' ? '🎯 Assigned' : '👤 Self Applied'}
-              </Badge>
-              {app.aiScore && (
-                <span className="text-sm font-medium text-green-600">
-                  AI: {app.aiScore.toFixed(1)}%
-                </span>
-              )}
-            </div>
-          </div>
-
-          {/* Dates */}
-          <div>
-            <div className="text-xs text-muted-foreground mb-1">Timeline</div>
-            <div className="text-xs">
-              <div>Applied: {format(new Date(app.createdAt), 'MMM dd, yyyy')}</div>
-              <div className="text-muted-foreground">
-                Updated: {format(new Date(app.updatedAt), 'MMM dd, yyyy')}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Notes if any */}
-        {app.applicationNote && (
-          <div className="mt-3 pt-3 border-t">
-            <div className="text-xs text-muted-foreground mb-1">Notes</div>
-            <div className="text-sm">{app.applicationNote}</div>
-          </div>
-        )}
-
-        {/* Rejection/Hold reason if any */}
-        {app.rejectionReason && (
-          <div className="mt-3 pt-3 border-t">
-            <div className="text-xs text-red-600 mb-1">Rejection Reason</div>
-            <div className="text-sm text-red-600">{app.rejectionReason}</div>
-          </div>
-        )}
-        {app.holdReason && (
-          <div className="mt-3 pt-3 border-t">
-            <div className="text-xs text-yellow-600 mb-1">Hold Reason</div>
-            <div className="text-sm text-yellow-600">{app.holdReason}</div>
-            {app.reviewDate && (
-              <div className="text-xs text-muted-foreground">
-                Review: {format(new Date(app.reviewDate), 'MMM dd, yyyy')}
-              </div>
-            )}
-          </div>
-        )}
-      </div>
-    );
+  const stats = {
+    total: myApplications.length,
+    active: myApplications.filter(app =>
+      app.status !== 'REJECTED' &&
+      app.status !== 'WITHDRAWN' &&
+      app.status !== 'COMPLETED'
+    ).length,
+    interviews: myApplications.filter(app =>
+      app.status.includes('INTERVIEW') || app.status === 'HR_ROUND'
+    ).length,
+    selected: myApplications.filter(app =>
+      app.status === 'SELECTED' ||
+      app.status === 'ONBOARDING' ||
+      app.status === 'COMPLETED'
+    ).length,
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Application Tracking - {employeeName}</DialogTitle>
           <DialogDescription>
-            Complete application history and current status
+            Track application progress and interview stages
           </DialogDescription>
         </DialogHeader>
 
-        {employeeApplications.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">
-            No applications found for {employeeName}
+        <div className="space-y-4">
+          {/* Stats */}
+          <div className="grid grid-cols-4 gap-3">
+            <div className="bg-card rounded-lg border p-3">
+              <div className="text-xs text-muted-foreground">Total Applications</div>
+              <div className="text-xl font-bold mt-1">{stats.total}</div>
+            </div>
+            <div className="bg-card rounded-lg border p-3">
+              <div className="text-xs text-muted-foreground">Active</div>
+              <div className="text-xl font-bold mt-1">{stats.active}</div>
+            </div>
+            <div className="bg-card rounded-lg border p-3">
+              <div className="text-xs text-muted-foreground">In Interviews</div>
+              <div className="text-xl font-bold mt-1">{stats.interviews}</div>
+            </div>
+            <div className="bg-card rounded-lg border p-3">
+              <div className="text-xs text-muted-foreground">Selected/Onboarding</div>
+              <div className="text-xl font-bold mt-1">{stats.selected}</div>
+            </div>
           </div>
-        ) : (
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-            <TabsList className="grid w-full grid-cols-4">
-              <TabsTrigger value="all">
-                All ({employeeApplications.length})
-              </TabsTrigger>
-              <TabsTrigger value="active">
-                Active ({activeApplications.length})
-              </TabsTrigger>
-              <TabsTrigger value="completed">
-                Selected ({completedApplications.length})
-              </TabsTrigger>
-              <TabsTrigger value="rejected">
-                Rejected ({rejectedApplications.length})
-              </TabsTrigger>
-            </TabsList>
 
-            <TabsContent value="all" className="space-y-3 mt-4">
-              {employeeApplications.map(app => renderApplicationCard(app))}
-            </TabsContent>
+          {/* Filter */}
+          <div className="flex gap-2">
+            <Button
+              variant={selectedFilter === 'ALL' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedFilter('ALL')}
+            >
+              All ({myApplications.length})
+            </Button>
+            <Button
+              variant={selectedFilter === 'ACTIVE' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedFilter('ACTIVE')}
+            >
+              Active ({stats.active})
+            </Button>
+            <Button
+              variant={selectedFilter === 'CLOSED' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setSelectedFilter('CLOSED')}
+            >
+              Closed ({myApplications.length - stats.active})
+            </Button>
+          </div>
 
-            <TabsContent value="active" className="space-y-3 mt-4">
-              {activeApplications.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  No active applications
-                </div>
-              ) : (
-                activeApplications.map(app => renderApplicationCard(app))
-              )}
-            </TabsContent>
+          {/* Applications List */}
+          {filteredApplications.length === 0 ? (
+            <div className="text-center py-12 text-muted-foreground border rounded-lg">
+              <Briefcase className="h-12 w-12 mx-auto mb-3 opacity-50" />
+              <div>No applications found</div>
+            </div>
+          ) : (
+            <div className="grid gap-4">
+              {filteredApplications.map(app => {
+                const req = getRequirement(app.requirementId);
+                const interviews = getMyInterviews(app.id);
 
-            <TabsContent value="completed" className="space-y-3 mt-4">
-              {completedApplications.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  No completed applications
-                </div>
-              ) : (
-                completedApplications.map(app => renderApplicationCard(app))
-              )}
-            </TabsContent>
+                return (
+                  <Card key={app.id}>
+                    <CardHeader>
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <CardTitle className="text-lg">
+                            {req?.title || 'Unknown Position'}
+                          </CardTitle>
+                          <div className="text-sm text-muted-foreground mt-1">
+                            REQ-{app.requirementId.slice(0, 4)} • {req?.projectInfo || ''}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            Applied on {format(new Date(app.createdAt), 'MMM dd, yyyy')}
+                          </div>
+                        </div>
+                        <Badge variant={app.source === 'ASSIGNED' ? 'info' : 'secondary'}>
+                          {app.source}
+                        </Badge>
+                      </div>
+                    </CardHeader>
+                    <CardContent className="space-y-4">
+                      <ApplicationStageTracker application={app} />
 
-            <TabsContent value="rejected" className="space-y-3 mt-4">
-              {rejectedApplications.length === 0 ? (
-                <div className="p-8 text-center text-muted-foreground">
-                  No rejected applications
-                </div>
-              ) : (
-                rejectedApplications.map(app => renderApplicationCard(app))
-              )}
-            </TabsContent>
-          </Tabs>
-        )}
+                      {interviews.length > 0 && (
+                        <div className="space-y-2 pt-4 border-t">
+                          <div className="text-sm font-medium flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Interview Schedule
+                          </div>
+                          {interviews.map((interview, idx) => (
+                            <div key={interview.id} className="text-sm pl-6">
+                              <div className="flex items-center justify-between">
+                                <span>{idx + 1}. {interview.name}</span>
+                                <Badge variant={
+                                  interview.outcome === 'PASS' ? 'success' :
+                                  interview.outcome === 'FAIL' ? 'destructive' :
+                                  interview.outcome === 'HOLD' ? 'warning' : 'secondary'
+                                } className="text-xs">
+                                  {interview.outcome}
+                                </Badge>
+                              </div>
+                              {interview.scheduledAt && (
+                                <div className="text-xs text-muted-foreground">
+                                  {format(new Date(interview.scheduledAt), 'MMM dd, yyyy hh:mm a')}
+                                  {interview.interviewer && ` • ${interview.interviewer}`}
+                                </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          )}
+        </div>
       </DialogContent>
     </Dialog>
   );
