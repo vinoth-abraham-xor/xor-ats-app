@@ -15,7 +15,7 @@ import type { Application } from '@/types';
 import { Button } from '@/components/core/button';
 import { Input } from '@/components/core/input';
 import { Badge } from '@/components/core/badge';
-import { Search, UserPlus, CheckCircle, XCircle, Pause, Play, Calendar, ArrowUpDown, Filter, ArrowRight } from 'lucide-react';
+import { Search, UserPlus, CheckCircle, XCircle, Pause, Play, Calendar, ArrowUpDown, ArrowRight } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { format } from 'date-fns';
 import {
@@ -449,7 +449,7 @@ export function ApplicationsPage() {
 
         {/* Search & Filters */}
         <div className="space-y-4">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center justify-between gap-4">
             <div className="relative flex-1 max-w-sm">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <Input
@@ -458,10 +458,6 @@ export function ApplicationsPage() {
                 onChange={(e) => setGlobalFilter(e.target.value)}
                 className="pl-10"
               />
-            </div>
-            <div className="flex items-center gap-2 text-sm text-muted-foreground">
-              <Filter className="h-4 w-4" />
-              <span>Filters:</span>
             </div>
             <ExportButton
               data={table.getFilteredRowModel().rows.map(row => {
