@@ -113,9 +113,16 @@ export function exportToPDF<T extends Record<string, any>>(
     tableWidth: 'auto', // Auto-calculate table width
     columnStyles: columns.reduce((acc, col, index) => {
       const scaledWidth = col.width ? col.width * scaleFactor : undefined;
+
+      // Determine if this is a status/priority/short-text column (don't wrap these)
+      const noWrapColumns = ['status', 'priority', 'role', 'experience', 'positions', 'applications'];
+      const shouldNotWrap = noWrapColumns.some(keyword =>
+        col.dataKey.toLowerCase().includes(keyword)
+      );
+
       acc[index] = {
         cellWidth: scaledWidth,
-        overflow: 'linebreak', // Enable wrapping per column
+        overflow: shouldNotWrap ? 'ellipsis' : 'linebreak', // Don't wrap short fields
         halign: 'left',
       };
       return acc;

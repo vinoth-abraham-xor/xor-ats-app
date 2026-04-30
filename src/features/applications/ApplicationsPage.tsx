@@ -480,12 +480,12 @@ export function ApplicationsPage() {
                 };
               })}
               columns={[
-                { header: 'Candidate Name', dataKey: 'candidateName', width: 40 },
-                { header: 'Email', dataKey: 'candidateEmail', width: 45 },
-                { header: 'Requirement', dataKey: 'requirementTitle', width: 45 },
-                { header: 'Project', dataKey: 'project', width: 32 },
-                { header: 'Stage', dataKey: 'currentStage', width: 28 },
-                { header: 'Status', dataKey: 'status', width: 22 },
+                { header: 'Candidate Name', dataKey: 'candidateName', width: 38 },
+                { header: 'Email', dataKey: 'candidateEmail', width: 43 },
+                { header: 'Requirement', dataKey: 'requirementTitle', width: 43 },
+                { header: 'Project', dataKey: 'project', width: 30 },
+                { header: 'Stage', dataKey: 'currentStage', width: 26 },
+                { header: 'Status', dataKey: 'status', width: 28 },
                 { header: 'Applied', dataKey: 'appliedDate', width: 26 },
                 { header: 'Updated', dataKey: 'lastUpdated', width: 26 },
               ]}
