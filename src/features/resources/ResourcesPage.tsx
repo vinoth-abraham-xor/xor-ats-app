@@ -14,7 +14,7 @@ import type { BenchResource } from '@/types';
 import { Button } from '@/components/core/button';
 import { Input } from '@/components/core/input';
 import { Badge } from '@/components/core/badge';
-import { Plus, Search, Archive, ArchiveRestore, Filter } from 'lucide-react';
+import { Plus, Search, Archive, ArchiveRestore, Filter, Eye } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import {
   Dialog,
@@ -26,12 +26,15 @@ import {
 } from '@/components/core/dialog';
 import { Label } from '@/components/core/label';
 import { ExportButton } from '@/components/ExportButton';
+import { ResourceAssignments } from '@/components/ResourceAssignments';
 
 export function ResourcesPage() {
   const { resources, addResource, archiveResource, unarchiveResource, auth } = useStore();
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState('');
   const [showArchived, setShowArchived] = useState(false);
+  const [trackingDialogOpen, setTrackingDialogOpen] = useState(false);
+  const [selectedResourceForTracking, setSelectedResourceForTracking] = useState<{ id: string; name: string } | null>(null);
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
   const [isArchiveDialogOpen, setIsArchiveDialogOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState<BenchResource | null>(null);
@@ -93,19 +96,36 @@ export function ResourcesPage() {
       {
         accessorKey: 'name',
         header: 'Candidate',
-        cell: ({ row }) => (
-          <div className="max-w-[220px]">
-            <div className="font-medium text-sm">{row.original.name}</div>
-            <div className="text-xs text-muted-foreground truncate" title={row.original.email}>
-              {row.original.email}
-            </div>
-            {row.original.phone && (
-              <div className="text-xs text-muted-foreground">
-                {row.original.phone}
+        cell: ({ row }) => {
+          return (
+            <div className="max-w-[220px]">
+              <div className="font-medium text-sm">{row.original.name}</div>
+              <div className="text-xs text-muted-foreground truncate" title={row.original.email}>
+                {row.original.email}
               </div>
-            )}
-          </div>
-        ),
+              {row.original.phone && (
+                <div className="text-xs text-muted-foreground">
+                  {row.original.phone}
+                </div>
+              )}
+              <Button
+                variant="link"
+                size="sm"
+                className="h-auto p-0 text-xs text-blue-600 hover:text-blue-800"
+                onClick={() => {
+                  setSelectedResourceForTracking({
+                    id: row.original.id,
+                    name: row.original.name
+                  });
+                  setTrackingDialogOpen(true);
+                }}
+              >
+                <Eye className="h-3 w-3 mr-1" />
+                View Assignments
+              </Button>
+            </div>
+          );
+        },
         size: 220,
       },
       {
@@ -518,6 +538,19 @@ export function ResourcesPage() {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Resource Assignment Tracking Dialog */}
+      {selectedResourceForTracking && (
+        <ResourceAssignments
+          resourceId={selectedResourceForTracking.id}
+          resourceName={selectedResourceForTracking.name}
+          isOpen={trackingDialogOpen}
+          onClose={() => {
+            setTrackingDialogOpen(false);
+            setSelectedResourceForTracking(null);
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }

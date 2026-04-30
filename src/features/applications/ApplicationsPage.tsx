@@ -15,7 +15,7 @@ import type { Application } from '@/types';
 import { Button } from '@/components/core/button';
 import { Input } from '@/components/core/input';
 import { Badge } from '@/components/core/badge';
-import { Search, UserPlus, CheckCircle, XCircle, Pause, Play, Calendar, ArrowUpDown, ArrowRight } from 'lucide-react';
+import { Search, UserPlus, CheckCircle, XCircle, Pause, Play, Calendar, ArrowUpDown, ArrowRight, Eye } from 'lucide-react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { format } from 'date-fns';
 import {
@@ -31,6 +31,7 @@ import { InterviewDialog } from './InterviewDialog';
 import { EnhancedAssignDialog } from './EnhancedAssignDialog';
 import { MoveStageDialog } from './MoveStageDialog';
 import { ExportButton } from '@/components/ExportButton';
+import { ApplicationHistory } from '@/components/ApplicationHistory';
 
 export function ApplicationsPage() {
   const {
@@ -52,6 +53,10 @@ export function ApplicationsPage() {
   const [statusFilter, setStatusFilter] = useState<string>('ALL');
   const [sourceFilter, setSourceFilter] = useState<string>('ALL');
   const [selectedRequirement, setSelectedRequirement] = useState<string>('ALL');
+
+  // Application tracking dialog
+  const [trackingDialogOpen, setTrackingDialogOpen] = useState(false);
+  const [selectedEmployeeForTracking, setSelectedEmployeeForTracking] = useState<{ id: string; name: string } | null>(null);
 
   // Dialogs
   const [isAssignDialogOpen, setIsAssignDialogOpen] = useState(false);
@@ -159,6 +164,7 @@ export function ApplicationsPage() {
         cell: ({ row }) => {
           const employee = getEmployee(row.original.employeeId);
           const email = employee && 'email' in employee ? employee.email : '';
+
           return (
             <div className="max-w-[200px]">
               <div className="font-medium text-sm">{employee?.name || 'Unknown'}</div>
@@ -167,6 +173,21 @@ export function ApplicationsPage() {
                   {email}
                 </div>
               )}
+              <Button
+                variant="link"
+                size="sm"
+                className="h-auto p-0 text-xs text-blue-600 hover:text-blue-800"
+                onClick={() => {
+                  setSelectedEmployeeForTracking({
+                    id: row.original.employeeId,
+                    name: employee?.name || 'Unknown'
+                  });
+                  setTrackingDialogOpen(true);
+                }}
+              >
+                <Eye className="h-3 w-3 mr-1" />
+                Track Applications
+              </Button>
             </div>
           );
         },
@@ -692,6 +713,19 @@ export function ApplicationsPage() {
           setSelectedApplication(null);
         }}
       />
+
+      {/* Application Tracking Dialog */}
+      {selectedEmployeeForTracking && (
+        <ApplicationHistory
+          employeeId={selectedEmployeeForTracking.id}
+          employeeName={selectedEmployeeForTracking.name}
+          isOpen={trackingDialogOpen}
+          onClose={() => {
+            setTrackingDialogOpen(false);
+            setSelectedEmployeeForTracking(null);
+          }}
+        />
+      )}
     </DashboardLayout>
   );
 }

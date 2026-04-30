@@ -13,8 +13,7 @@ import {
   GitPullRequest,
   Search,
   UserCircle,
-  ClipboardList,
-  ListChecks
+  ClipboardList
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -48,7 +47,6 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
       { name: 'Applications', href: '/applications', icon: GitPullRequest },
       { name: 'Pipeline', href: '/applications/pipeline', icon: GitPullRequest },
       { name: 'AI Screening', href: '/applications/ai-ranking', icon: BarChart3 },
-      { name: 'App Tracking', href: '/employee/my-applications', icon: ListChecks },
       { name: 'Resources', href: '/resources', icon: Briefcase },
       { name: 'User Management', href: '/users', icon: Users },
       { name: 'Settings', href: '/settings', icon: Settings },
