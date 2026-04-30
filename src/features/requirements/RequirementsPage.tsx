@@ -525,16 +525,16 @@ export function RequirementsPage() {
                 };
               })}
               columns={[
-                { header: 'Title', dataKey: 'title', width: 50 },
-                { header: 'Project', dataKey: 'project', width: 40 },
-                { header: 'Location', dataKey: 'location', width: 30 },
-                { header: 'Experience', dataKey: 'experience', width: 25 },
-                { header: 'Positions', dataKey: 'positions', width: 20 },
-                { header: 'Applications', dataKey: 'applications', width: 25 },
-                { header: 'Status', dataKey: 'status', width: 25 },
+                { header: 'Title', dataKey: 'title', width: 45 },
+                { header: 'Project', dataKey: 'project', width: 38 },
+                { header: 'Location', dataKey: 'location', width: 28 },
+                { header: 'Experience', dataKey: 'experience', width: 24 },
+                { header: 'Pos', dataKey: 'positions', width: 18 },
+                { header: 'Apps', dataKey: 'applications', width: 18 },
+                { header: 'Status', dataKey: 'status', width: 22 },
                 { header: 'Priority', dataKey: 'priority', width: 20 },
-                { header: 'Created', dataKey: 'createdDate', width: 30 },
-                { header: 'Deadline', dataKey: 'deadline', width: 30 },
+                { header: 'Created', dataKey: 'createdDate', width: 28 },
+                { header: 'Deadline', dataKey: 'deadline', width: 28 },
               ]}
               filename="job-requirements"
               title="Job Requirements Report"

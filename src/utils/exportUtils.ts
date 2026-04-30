@@ -74,6 +74,15 @@ export function exportToPDF<T extends Record<string, any>>(
     })
   );
 
+  // Calculate page width and available space
+  const pageSize = doc.internal.pageSize;
+  const pageWidth = pageSize.width ? pageSize.width : pageSize.getWidth();
+  const availableWidth = pageWidth - 28; // 14mm margins on each side
+
+  // Calculate total column width and scale if needed
+  const totalColumnWidth = columns.reduce((sum, col) => sum + (col.width || 20), 0);
+  const scaleFactor = totalColumnWidth > availableWidth ? availableWidth / totalColumnWidth : 1;
+
   // Generate table
   autoTable(doc, {
     head: [columns.map(col => col.header)],
@@ -82,21 +91,33 @@ export function exportToPDF<T extends Record<string, any>>(
     styles: {
       fontSize: 8,
       cellPadding: 2,
+      overflow: 'linebreak', // Enable text wrapping
+      cellWidth: 'wrap', // Allow cells to wrap text
+      minCellHeight: 8, // Minimum cell height to accommodate wrapped text
+      halign: 'left', // Horizontal alignment
+      valign: 'middle', // Vertical alignment
     },
     headStyles: {
       fillColor: [66, 66, 66],
       textColor: 255,
       fontStyle: 'bold',
       fontSize: 9,
+      halign: 'center',
+      valign: 'middle',
+      minCellHeight: 10,
     },
     alternateRowStyles: {
       fillColor: [245, 245, 245],
     },
     margin: { top: 10, left: 14, right: 14 },
+    tableWidth: 'auto', // Auto-calculate table width
     columnStyles: columns.reduce((acc, col, index) => {
-      if (col.width) {
-        acc[index] = { cellWidth: col.width };
-      }
+      const scaledWidth = col.width ? col.width * scaleFactor : undefined;
+      acc[index] = {
+        cellWidth: scaledWidth,
+        overflow: 'linebreak', // Enable wrapping per column
+        halign: 'left',
+      };
       return acc;
     }, {} as Record<number, any>),
   });

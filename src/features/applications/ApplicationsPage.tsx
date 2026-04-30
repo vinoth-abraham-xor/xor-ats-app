@@ -480,14 +480,14 @@ export function ApplicationsPage() {
                 };
               })}
               columns={[
-                { header: 'Candidate Name', dataKey: 'candidateName', width: 45 },
-                { header: 'Email', dataKey: 'candidateEmail', width: 50 },
-                { header: 'Requirement', dataKey: 'requirementTitle', width: 50 },
-                { header: 'Project', dataKey: 'project', width: 35 },
-                { header: 'Stage', dataKey: 'currentStage', width: 30 },
-                { header: 'Status', dataKey: 'status', width: 25 },
-                { header: 'Applied Date', dataKey: 'appliedDate', width: 30 },
-                { header: 'Last Updated', dataKey: 'lastUpdated', width: 30 },
+                { header: 'Candidate Name', dataKey: 'candidateName', width: 40 },
+                { header: 'Email', dataKey: 'candidateEmail', width: 45 },
+                { header: 'Requirement', dataKey: 'requirementTitle', width: 45 },
+                { header: 'Project', dataKey: 'project', width: 32 },
+                { header: 'Stage', dataKey: 'currentStage', width: 28 },
+                { header: 'Status', dataKey: 'status', width: 22 },
+                { header: 'Applied', dataKey: 'appliedDate', width: 26 },
+                { header: 'Updated', dataKey: 'lastUpdated', width: 26 },
               ]}
               filename="applications"
               title="Applications Report"

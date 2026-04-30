@@ -210,11 +210,11 @@ export function UserManagementPage() {
               createdAt: format(new Date(row.original.createdAt), 'MMM dd, yyyy'),
             }))}
             columns={[
-              { header: 'Name', dataKey: 'name', width: 40 },
-              { header: 'Email', dataKey: 'email', width: 50 },
-              { header: 'Role', dataKey: 'role', width: 30 },
-              { header: 'Status', dataKey: 'status', width: 25 },
-              { header: 'Created Date', dataKey: 'createdAt', width: 30 },
+              { header: 'Name', dataKey: 'name', width: 55 },
+              { header: 'Email', dataKey: 'email', width: 70 },
+              { header: 'Role', dataKey: 'role', width: 40 },
+              { header: 'Status', dataKey: 'status', width: 30 },
+              { header: 'Created Date', dataKey: 'createdAt', width: 40 },
             ]}
             filename="users"
             title="User Management Report"

@@ -302,15 +302,15 @@ export function ResourcesPage() {
               availability: row.original.status === 'AVAILABLE' ? 'Available Now' : 'Not Available',
             }))}
             columns={[
-              { header: 'Name', dataKey: 'name', width: 40 },
-              { header: 'Email', dataKey: 'email', width: 50 },
-              { header: 'Designation', dataKey: 'designation', width: 35 },
-              { header: 'Skills', dataKey: 'skills', width: 60 },
-              { header: 'Experience (Years)', dataKey: 'experience', width: 25 },
-              { header: 'Location', dataKey: 'location', width: 30 },
-              { header: 'Domain', dataKey: 'domain', width: 30 },
-              { header: 'Status', dataKey: 'status', width: 25 },
-              { header: 'Availability', dataKey: 'availability', width: 30 },
+              { header: 'Name', dataKey: 'name', width: 35 },
+              { header: 'Email', dataKey: 'email', width: 45 },
+              { header: 'Designation', dataKey: 'designation', width: 30 },
+              { header: 'Skills', dataKey: 'skills', width: 50 },
+              { header: 'Exp', dataKey: 'experience', width: 18 },
+              { header: 'Location', dataKey: 'location', width: 28 },
+              { header: 'Domain', dataKey: 'domain', width: 28 },
+              { header: 'Status', dataKey: 'status', width: 22 },
+              { header: 'Availability', dataKey: 'availability', width: 28 },
             ]}
             filename="resources"
             title={showArchived ? 'Archived Resources Report' : 'Active Resources Report'}
