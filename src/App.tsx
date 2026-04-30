@@ -122,7 +122,15 @@ function DashboardPage() {
   );
 }
 
-function PrivateRoute({ children, adminOnly = false }: { children: React.ReactNode; adminOnly?: boolean }) {
+function PrivateRoute({
+  children,
+  adminOnly = false,
+  hrOnly = false
+}: {
+  children: React.ReactNode;
+  adminOnly?: boolean;
+  hrOnly?: boolean;
+}) {
   const { auth } = useStore();
   const location = useLocation();
 
@@ -132,6 +140,11 @@ function PrivateRoute({ children, adminOnly = false }: { children: React.ReactNo
 
   // If route requires admin but user is employee, redirect to employee dashboard
   if (adminOnly && auth.user?.role === 'EMPLOYEE') {
+    return <Navigate to="/employee/dashboard" />;
+  }
+
+  // If route requires HR access (HR, MANAGER, TMG can access)
+  if (hrOnly && auth.user?.role === 'EMPLOYEE') {
     return <Navigate to="/employee/dashboard" />;
   }
 

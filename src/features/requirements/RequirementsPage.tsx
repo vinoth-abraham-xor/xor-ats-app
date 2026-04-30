@@ -513,20 +513,20 @@ export function RequirementsPage() {
                 const appCount = applications.filter(app => app.requirementId === row.original.id).length;
                 return {
                   title: row.original.title,
-                  client: row.original.client,
+                  project: row.original.projectInfo,
                   location: row.original.location,
                   experience: `${row.original.experience.min}-${row.original.experience.max} years`,
-                  positions: row.original.numberOfPositions,
+                  positions: row.original.positions,
                   applications: appCount,
                   status: row.original.status,
                   priority: row.original.priority,
                   createdDate: format(new Date(row.original.createdAt), 'MMM dd, yyyy'),
-                  closingDate: format(new Date(row.original.closingDate), 'MMM dd, yyyy'),
+                  deadline: row.original.deadline ? format(new Date(row.original.deadline), 'MMM dd, yyyy') : '-',
                 };
               })}
               columns={[
                 { header: 'Title', dataKey: 'title', width: 50 },
-                { header: 'Client', dataKey: 'client', width: 40 },
+                { header: 'Project', dataKey: 'project', width: 40 },
                 { header: 'Location', dataKey: 'location', width: 30 },
                 { header: 'Experience', dataKey: 'experience', width: 25 },
                 { header: 'Positions', dataKey: 'positions', width: 20 },
@@ -534,11 +534,11 @@ export function RequirementsPage() {
                 { header: 'Status', dataKey: 'status', width: 25 },
                 { header: 'Priority', dataKey: 'priority', width: 20 },
                 { header: 'Created', dataKey: 'createdDate', width: 30 },
-                { header: 'Closing Date', dataKey: 'closingDate', width: 30 },
+                { header: 'Deadline', dataKey: 'deadline', width: 30 },
               ]}
               filename="job-requirements"
               title="Job Requirements Report"
-              subtitle={`Total Requirements: ${filteredData.length} | Open: ${filteredData.filter(r => r.status === 'OPEN').length}`}
+              subtitle={`Total Requirements: ${jobRequirements.length} | Open: ${jobRequirements.filter((r: JobRequirement) => r.status === 'OPEN').length}`}
               orientation="landscape"
             />
           </div>

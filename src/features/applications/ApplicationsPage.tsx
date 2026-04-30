@@ -30,6 +30,7 @@ import { Label } from '@/components/core/label';
 import { InterviewDialog } from './InterviewDialog';
 import { EnhancedAssignDialog } from './EnhancedAssignDialog';
 import { MoveStageDialog } from './MoveStageDialog';
+import { ExportButton } from '@/components/ExportButton';
 
 export function ApplicationsPage() {
   const {
@@ -462,6 +463,37 @@ export function ApplicationsPage() {
               <Filter className="h-4 w-4" />
               <span>Filters:</span>
             </div>
+            <ExportButton
+              data={table.getFilteredRowModel().rows.map(row => {
+                const employee = users.find(u => u.id === row.original.employeeId) ||
+                                resources.find(r => r.id === row.original.employeeId);
+                const requirement = jobRequirements.find(r => r.id === row.original.requirementId);
+                return {
+                  candidateName: employee?.name || 'Unknown',
+                  candidateEmail: employee && 'email' in employee ? employee.email : '-',
+                  requirementTitle: requirement?.title || 'Unknown',
+                  project: requirement?.projectInfo || '-',
+                  currentStage: row.original.currentStage,
+                  status: row.original.status,
+                  appliedDate: format(new Date(row.original.createdAt), 'MMM dd, yyyy'),
+                  lastUpdated: format(new Date(row.original.updatedAt), 'MMM dd, yyyy'),
+                };
+              })}
+              columns={[
+                { header: 'Candidate Name', dataKey: 'candidateName', width: 45 },
+                { header: 'Email', dataKey: 'candidateEmail', width: 50 },
+                { header: 'Requirement', dataKey: 'requirementTitle', width: 50 },
+                { header: 'Project', dataKey: 'project', width: 35 },
+                { header: 'Stage', dataKey: 'currentStage', width: 30 },
+                { header: 'Status', dataKey: 'status', width: 25 },
+                { header: 'Applied Date', dataKey: 'appliedDate', width: 30 },
+                { header: 'Last Updated', dataKey: 'lastUpdated', width: 30 },
+              ]}
+              filename="applications"
+              title="Applications Report"
+              subtitle={`Total Applications: ${applications.length} | Active: ${applications.filter((a: Application) => a.status !== 'REJECTED' && a.status !== 'WITHDRAWN').length}`}
+              orientation="landscape"
+            />
           </div>
 
           {/* Filter Controls */}

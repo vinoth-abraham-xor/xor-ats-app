@@ -299,7 +299,7 @@ export function ResourcesPage() {
               location: row.original.location,
               domain: row.original.domain || '-',
               status: row.original.status,
-              availableFrom: row.original.availableFrom || '-',
+              availability: row.original.status === 'AVAILABLE' ? 'Available Now' : 'Not Available',
             }))}
             columns={[
               { header: 'Name', dataKey: 'name', width: 40 },
@@ -310,7 +310,7 @@ export function ResourcesPage() {
               { header: 'Location', dataKey: 'location', width: 30 },
               { header: 'Domain', dataKey: 'domain', width: 30 },
               { header: 'Status', dataKey: 'status', width: 25 },
-              { header: 'Available From', dataKey: 'availableFrom', width: 30 },
+              { header: 'Availability', dataKey: 'availability', width: 30 },
             ]}
             filename="resources"
             title={showArchived ? 'Archived Resources Report' : 'Active Resources Report'}
