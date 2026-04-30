@@ -34,6 +34,7 @@ import {
 } from '@/components/core/dialog';
 import { Label } from '@/components/core/label';
 import { format } from 'date-fns';
+import { ExportButton } from '@/components/ExportButton';
 
 export function UserManagementPage() {
   const { users, addUser, updateUser, deleteUser, ensureSeedUsers } = useStore();
@@ -200,6 +201,25 @@ export function UserManagementPage() {
               {users.filter((u) => u.status === 'ACTIVE').length} Active
             </Badge>
           </div>
+          <ExportButton
+            data={table.getFilteredRowModel().rows.map(row => ({
+              name: row.original.name,
+              email: row.original.email,
+              role: row.original.role,
+              status: row.original.status,
+              createdAt: format(new Date(row.original.createdAt), 'MMM dd, yyyy'),
+            }))}
+            columns={[
+              { header: 'Name', dataKey: 'name', width: 40 },
+              { header: 'Email', dataKey: 'email', width: 50 },
+              { header: 'Role', dataKey: 'role', width: 30 },
+              { header: 'Status', dataKey: 'status', width: 25 },
+              { header: 'Created Date', dataKey: 'createdAt', width: 30 },
+            ]}
+            filename="users"
+            title="User Management Report"
+            subtitle={`Total Users: ${users.length} | Active: ${users.filter(u => u.status === 'ACTIVE').length}`}
+          />
         </div>
 
         {/* Table */}

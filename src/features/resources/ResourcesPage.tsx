@@ -25,6 +25,7 @@ import {
   DialogTitle,
 } from '@/components/core/dialog';
 import { Label } from '@/components/core/label';
+import { ExportButton } from '@/components/ExportButton';
 
 export function ResourcesPage() {
   const { resources, addResource, archiveResource, unarchiveResource, auth } = useStore();
@@ -288,6 +289,34 @@ export function ResourcesPage() {
             <Filter className="mr-2 h-4 w-4" />
             {showArchived ? 'Show Active' : 'Show Archived'}
           </Button>
+          <ExportButton
+            data={table.getFilteredRowModel().rows.map(row => ({
+              name: row.original.name,
+              email: row.original.email,
+              designation: row.original.designation,
+              skills: row.original.skills.join(', '),
+              experience: row.original.experience,
+              location: row.original.location,
+              domain: row.original.domain || '-',
+              status: row.original.status,
+              availableFrom: row.original.availableFrom || '-',
+            }))}
+            columns={[
+              { header: 'Name', dataKey: 'name', width: 40 },
+              { header: 'Email', dataKey: 'email', width: 50 },
+              { header: 'Designation', dataKey: 'designation', width: 35 },
+              { header: 'Skills', dataKey: 'skills', width: 60 },
+              { header: 'Experience (Years)', dataKey: 'experience', width: 25 },
+              { header: 'Location', dataKey: 'location', width: 30 },
+              { header: 'Domain', dataKey: 'domain', width: 30 },
+              { header: 'Status', dataKey: 'status', width: 25 },
+              { header: 'Available From', dataKey: 'availableFrom', width: 30 },
+            ]}
+            filename="resources"
+            title={showArchived ? 'Archived Resources Report' : 'Active Resources Report'}
+            subtitle={`Total Resources: ${filteredData.length}`}
+            orientation="landscape"
+          />
         </div>
 
         {/* Table */}

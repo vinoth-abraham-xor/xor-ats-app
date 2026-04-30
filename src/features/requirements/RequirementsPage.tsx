@@ -28,6 +28,7 @@ import {
   DialogTitle,
 } from '@/components/core/dialog';
 import { Label } from '@/components/core/label';
+import { ExportButton } from '@/components/ExportButton';
 
 export function RequirementsPage() {
   const navigate = useNavigate();
@@ -507,6 +508,39 @@ export function RequirementsPage() {
               <Filter className="h-4 w-4" />
               <span>Filters:</span>
             </div>
+            <ExportButton
+              data={table.getFilteredRowModel().rows.map(row => {
+                const appCount = applications.filter(app => app.requirementId === row.original.id).length;
+                return {
+                  title: row.original.title,
+                  client: row.original.client,
+                  location: row.original.location,
+                  experience: `${row.original.experience.min}-${row.original.experience.max} years`,
+                  positions: row.original.numberOfPositions,
+                  applications: appCount,
+                  status: row.original.status,
+                  priority: row.original.priority,
+                  createdDate: format(new Date(row.original.createdAt), 'MMM dd, yyyy'),
+                  closingDate: format(new Date(row.original.closingDate), 'MMM dd, yyyy'),
+                };
+              })}
+              columns={[
+                { header: 'Title', dataKey: 'title', width: 50 },
+                { header: 'Client', dataKey: 'client', width: 40 },
+                { header: 'Location', dataKey: 'location', width: 30 },
+                { header: 'Experience', dataKey: 'experience', width: 25 },
+                { header: 'Positions', dataKey: 'positions', width: 20 },
+                { header: 'Applications', dataKey: 'applications', width: 25 },
+                { header: 'Status', dataKey: 'status', width: 25 },
+                { header: 'Priority', dataKey: 'priority', width: 20 },
+                { header: 'Created', dataKey: 'createdDate', width: 30 },
+                { header: 'Closing Date', dataKey: 'closingDate', width: 30 },
+              ]}
+              filename="job-requirements"
+              title="Job Requirements Report"
+              subtitle={`Total Requirements: ${filteredData.length} | Open: ${filteredData.filter(r => r.status === 'OPEN').length}`}
+              orientation="landscape"
+            />
           </div>
 
           {/* Filter Controls */}
