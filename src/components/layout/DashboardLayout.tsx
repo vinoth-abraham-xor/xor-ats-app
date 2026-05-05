@@ -9,11 +9,11 @@ import {
   BarChart3,
   Settings,
   LogOut,
-  Shield,
   GitPullRequest,
   Search,
   UserCircle,
-  ClipboardList
+  ClipboardList,
+  UserCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -66,7 +66,7 @@ export function DashboardLayout({ children }: DashboardLayoutProps) {
           {/* Logo */}
           <div className="flex items-center gap-2 px-6 py-5 border-b border-white/10">
             <div className="h-10 w-10 bg-primary rounded-lg flex items-center justify-center">
-              <Shield className="h-6 w-6 text-white" />
+              <UserCheck className="h-6 w-6 text-white" />
             </div>
             <div>
               <h1 className="text-xl font-bold text-sidebar-foreground">XOR-ATS</h1>
